@@ -1,0 +1,17 @@
+source https://api.nuget.org/v3/index.json
+source https://www.nuget.org/api/v2/
+
+group Build
+  source https://api.nuget.org/v3/index.json
+
+  nuget FAKE
+  nuget Nuget.CommandLine
+  nuget SourceLink.Fake
+  nuget FAKE.Persimmon
+
+  github fsharp/FAKE modules/Octokit/Octokit.fsx
+
+group Test
+  source https://api.nuget.org/v3/index.json
+
+  nuget Persimmon
