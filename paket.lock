@@ -30,3 +30,7 @@ NUGET
   remote: http://api.nuget.org/v3/index.json
   specs:
     Persimmon (1.1)
+GIST
+  remote: pocketberserker/1c919217eb95a03ee942fdfd094a4927
+  specs:
+    assertSeqEquals.fs (e45c9d968564362118aa104a6dfdafec1b9b947f)

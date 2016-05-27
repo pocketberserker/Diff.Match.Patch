@@ -67,6 +67,7 @@ Target "AssemblyInfo" (fun _ ->
           Attribute.Product project
           Attribute.Guid "1a90ce2e-2b2e-44ff-b284-2e2da41e4f35"
           Attribute.Description summary
+          Attribute.InternalsVisibleTo("Diff.Match.Patch.Tests")
           Attribute.Version release.AssemblyVersion
           Attribute.FileVersion release.AssemblyVersion
           Attribute.InformationalVersion release.NugetVersion ]

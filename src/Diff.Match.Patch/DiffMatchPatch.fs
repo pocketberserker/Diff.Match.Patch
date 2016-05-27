@@ -106,7 +106,7 @@ with
   member private __.DiffLinesToCharsMunge(text, lineArray, lineHash: Dictionary<string, int>) =
     let chars = StringBuilder()
     let rec inner lineStart lineEnd =
-      if lineEnd < String.length text then ()
+      if lineEnd >= String.length text - 1 then ()
       else
         let lineEnd = text.IndexOf('\n', lineStart)
         let lineEnd = if lineEnd = -1 then text.Length - 1 else lineEnd
@@ -114,10 +114,11 @@ with
         let lineStart = lineEnd + 1
         if lineHash.ContainsKey(line) then chars.Append(char lineHash.[line]) |> ignore
         else
-          let c = lineArray.Count - 1
           lineArray.Add(line)
+          let c = lineArray.Count - 1
           lineHash.Add(line, c)
           chars.Append(char c) |> ignore
+        inner lineStart lineEnd
     inner 0 -1
     chars.ToString()
 
@@ -128,7 +129,7 @@ with
         text.Append(lineArray.[int diff.Text.[y]]) |> ignore
       diff.Text <- text.ToString()
 
-  member internal __.DiffFootprint(x: int, y: int) = int64 x <<< 32 + y
+  member internal __.DiffFootprint(x: int, y: int) = ((int64 x) <<< 32) + int64 y
 
   member internal this.DiffPath1(v_map: ResizeArray<Set<int64>>, text1, text2) =
     let path = LinkedList<Diff>()
@@ -151,7 +152,7 @@ with
           let diff = Seq.head path
           diff.Text <- string text2.[!y] + diff.Text
         | _ ->
-          path.AddFirst({ Text = text1.Substring(!y, 1); Operation = Insert }) |> ignore
+          path.AddFirst({ Text = text2.Substring(!y, 1); Operation = Insert }) |> ignore
         Some Insert
       else
         decr x
@@ -162,9 +163,9 @@ with
           diff.Text <- string text1.[!x] + diff.Text
         | _ ->
           path.AddFirst({ Text = text1.Substring(!x, 1); Operation = Equal }) |> ignore
-        Some Equal
-    [v_map.Count - 2 .. -1 .. 0]
-    |> List.fold inner None
+        inner (Some Equal) d
+    [|v_map.Count - 2 .. -1 .. 0|]
+    |> Array.fold inner None
     |> ignore
     ResizeArray<Diff>(path)
 
@@ -189,7 +190,7 @@ with
           let diff = Seq.last path
           diff.Text <- diff.Text + string text2.[text2.Length - !y - 1]
         | _ ->
-          path.AddFirst({ Text = text1.Substring(text2.Length - !y - 1, 1); Operation = Insert }) |> ignore
+          path.AddLast({ Text = text2.Substring(text2.Length - !y - 1, 1); Operation = Insert }) |> ignore
         Some Insert
       else
         decr x
@@ -199,10 +200,10 @@ with
           let diff = Seq.last path
           diff.Text <- diff.Text + string text1.[text1.Length - !x - 1]
         | _ ->
-          path.AddFirst({ Text = text1.Substring(text1.Length - !x - 1, 1); Operation = Equal }) |> ignore
-        Some Equal
-    [v_map.Count - 2 .. -1 .. 0]
-    |> List.fold inner None
+          path.AddLast({ Text = text1.Substring(text1.Length - !x - 1, 1); Operation = Equal }) |> ignore
+        inner (Some Equal) d
+    [|v_map.Count - 2 .. -1 .. 0|]
+    |> Array.fold inner None
     |> ignore
     ResizeArray<Diff>(path)
 
@@ -212,23 +213,24 @@ with
     let text2_length = String.length text2
     let max_d = text1_length + text2_length - 1
     let doubleEnd = int this.DiffDualThreshold * 2 < max_d
-    let v_map1 = ResizeArray<Set<int64>>()
-    let v_map2 = ResizeArray<Set<int64>>()
+    let mutable v_map1 = ResizeArray<Set<int64>>()
+    let mutable v_map2 = ResizeArray<Set<int64>>()
     let v1 = Dictionary<int, int>()
     let v2 = Dictionary<int, int>()
     v1.Add(1, 0)
     v2.Add(1, 0)
-    let footstep = 0L
+    let footstep = ref 0L
     let footsteps = Dictionary<int64, int>()
     let mutable done' = false
     let front = ((text1_length + text2_length) % 2 = 1)
 
     let rec inner d =
-      if this.DiffTimeout > 0.0f && DateTime.Now > ms_end then None
+      if d >= max_d then None
+      elif this.DiffTimeout > 0.0f && DateTime.Now > ms_end then None
       else
         v_map1.Add(Set.empty)
-        [-d .. 2 .. d]
-        |> List.fold (fun result k ->
+        [|-d .. 2 .. d|]
+        |> Array.fold (fun result k ->
           match result with
           | Some _ -> result
           | None ->
@@ -238,73 +240,72 @@ with
               |> ref
             let y = !x - k |> ref
             if doubleEnd then
-              let footstep = this.DiffFootprint(!x, !y)
-              if front && (footsteps.ContainsKey(footstep)) then done' <- true
-              if not front then footsteps.Add(footstep, d)
+              footstep := this.DiffFootprint(!x, !y)
+              if front && (footsteps.ContainsKey(!footstep)) then done' <- true
+              if not front then footsteps.Add(!footstep, d)
             while not done' && !x < text1_length && !y < text2_length  && text1.[!x] = text2.[!y] do
               incr x
               incr y
               if doubleEnd then
-                let footstep = this.DiffFootprint(!x, !y)
-                if front && (footsteps.ContainsKey(footstep)) then done' <- true
-                if not front then footsteps.Add(footstep, d)
+                footstep := this.DiffFootprint(!x, !y)
+                if front && (footsteps.ContainsKey(!footstep)) then done' <- true
+                if not front then footsteps.Add(!footstep, d)
             if v1.ContainsKey(k) then v1.[k] <- !x
             else v1.Add(k, !x)
-            let s = v_map1.[d]
-            v_map1.[d] <- Set.add (this.DiffFootprint(!x, !y)) s
-            let result =
-              if !x = text1_length && !y = text2_length then Some(this.DiffPath1(v_map1, text1, text2))
-              elif done' then
-                let v_map2 = v_map2.GetRange(0, footsteps.[footstep] + 1)
-                let a = this.DiffPath1(v_map1, text1.Substring(0, !x), text2.Substring(0, !y))
-                a.AddRange(this.DiffPath2(v_map2, text1.Substring(!x), text2.Substring(!y)))
-                Some a
-              else None
-            match result with
-            | Some _ -> result
-            | None when doubleEnd ->
-              v_map2.Add(Set.empty)
-              [-d .. 2 .. d]
-              |> List.fold (fun result k ->
-                match result with
-                | Some _ -> result
-                | None ->
-                  let x =
-                    if k = -d || k <> d && v2.[k - 1] < v2.[k + 1] then v2.[k + 1]
-                    else v2.[k - 1] + 1
-                    |> ref
-                  let y = !x - k |> ref
-                  let footstep = this.DiffFootprint(text1_length - !x, text2_length - !y)
-                  if not front && footsteps.ContainsKey(footstep) then done' <- true
-                  if front then footsteps.Add(footstep, d)
-                  while not done' && !x < text1_length && !y < text2_length && text1.[text1_length - !x - 1] = text2.[text2_length - !y - 1] do
-                    incr x
-                    incr y
-                    let footstep = this.DiffFootprint(text1_length - !x, text2_length - !y)
-                    if not front && footsteps.ContainsKey(footstep) then done' <- true
-                    if front then footsteps.Add(footstep, d)
-                  if v2.ContainsKey(k) then v2.[k] <- !x
-                  else v2.Add(k, !x)
-                  let s = v_map2.[d]
-                  v_map2.[d] <- Set.add (this.DiffFootprint(!x, !y)) s
-                  if done' then
-                    let v_map1 = v_map1.GetRange(0, footsteps.[footstep] + 1)
-                    let a = this.DiffPath1(v_map1, text1.Substring(0, text1_length - !x), text2.Substring(0, text2_length - !y))
-                    a.AddRange(this.DiffPath2(v_map2, text1.Substring(text1_length - !x), text2.Substring(text2_length - !y)))
-                    Some a
-                  else None
-              ) None
-            | None -> None
-        ) None
+            v_map1.[d] <- v_map1.[d] |> Set.add (this.DiffFootprint(!x, !y))
+            if !x = text1_length && !y = text2_length then Some(this.DiffPath1(v_map1, text1, text2))
+            elif done' then
+              v_map2 <- v_map2.GetRange(0, footsteps.[!footstep] + 1)
+              let a = this.DiffPath1(v_map1, text1.Substring(0, !x), text2.Substring(0, !y))
+              a.AddRange(this.DiffPath2(v_map2, text1.Substring(!x), text2.Substring(!y)))
+              Some a
+            else None
+          ) None
+          |> function
+          | Some result -> Some result
+          | None when doubleEnd ->
+            v_map2.Add(Set.empty)
+            [|-d .. 2 .. d|]
+            |> Array.fold (fun result k ->
+              match result with
+              | Some _ -> result
+              | None ->
+                let x =
+                  if k = -d || k <> d && v2.[k - 1] < v2.[k + 1] then v2.[k + 1]
+                  else v2.[k - 1] + 1
+                  |> ref
+                let y = !x - k |> ref
+                footstep := this.DiffFootprint(text1_length - !x, text2_length - !y)
+                if not front && footsteps.ContainsKey(!footstep) then done' <- true
+                if front then footsteps.Add(!footstep, d)
+                while not done' && !x < text1_length && !y < text2_length && text1.[text1_length - !x - 1] = text2.[text2_length - !y - 1] do
+                  incr x
+                  incr y
+                  footstep := this.DiffFootprint(text1_length - !x, text2_length - !y)
+                  if not front && footsteps.ContainsKey(!footstep) then done' <- true
+                  if front then footsteps.Add(!footstep, d)
+                if v2.ContainsKey(k) then v2.[k] <- !x
+                else v2.Add(k, !x)
+                v_map2.[d] <- v_map2.[d] |> Set.add (this.DiffFootprint(!x, !y))
+                if done' then
+                  v_map1 <- v_map1.GetRange(0, footsteps.[!footstep] + 1)
+                  let a = this.DiffPath1(v_map1, text1.Substring(0, text1_length - !x), text2.Substring(0, text2_length - !y))
+                  a.AddRange(this.DiffPath2(v_map2, text1.Substring(text1_length - !x), text2.Substring(text2_length - !y)))
+                  Some a
+                else None
+            ) None
+          | None -> None
+        |> function
+        | Some v -> Some v
+        | None -> inner (d + 1)
     inner 0
 
   member __.DiffCommonPrefix(text1, text2) =
     let n = min (String.length text1) (String.length text2)
     let rec inner i =
       if i >= n then n
-      else
-        if text1.[i] <> text2.[i] then i
-        else inner (i + 1)
+      elif text1.[i] <> text2.[i] then i
+      else inner (i + 1)
     inner 0
 
   member __.DiffCommonSuffix(text1, text2) =
@@ -312,35 +313,31 @@ with
     let text2_length = String.length text2
     let n = min text1_length text2_length
     let rec inner i =
-      if i >= n then n
-      else
-        if text1.[text1_length - i] <> text2.[text2_length - i] then i - 1
-        else inner (i + 1)
+      if i > n then n
+      elif text1.[text1_length - i] <> text2.[text2_length - i] then i - 1
+      else inner (i + 1)
     inner 1
 
   member private this.DiffHalfMatchI(longText: string, shortText: string, i) =
     let seed = longText.Substring(i, longText.Length / 4)
-    let rec inner j best_common best_longText_a best_longText_b best_shortText_a best_shortText_b =
-      if j < shortText.Length then
-        let j = shortText.IndexOf(seed, j + 1)
-        if j <> -1 then
-          let prefixLength = this.DiffCommonPrefix(longText.Substring(i), shortText.Substring(j))
-          let suffixLength = this.DiffCommonSuffix(longText.Substring(0, i), shortText.Substring(0, j))
-          let best_common, best_longText_a, best_longText_b, best_shortText_a, best_shortText_b =
-            if String.length best_common < suffixLength + prefixLength then
-              let best_common = shortText.Substring(j - suffixLength, suffixLength) + shortText.Substring(j, prefixLength)
-              let best_longText_a = longText.Substring(0, i - suffixLength)
-              let best_longText_b = longText.Substring(i + prefixLength)
-              let best_shortText_a = shortText.Substring(0, j - suffixLength)
-              let best_shortText_b = shortText.Substring(j + prefixLength)
-              (best_common, best_longText_a, best_longText_b, best_shortText_a, best_shortText_b)
-            else (best_common, best_longText_a, best_longText_b, best_shortText_a, best_shortText_b)
-          inner j best_common best_longText_a best_longText_b best_shortText_a best_shortText_b
-        else (best_common, best_longText_a, best_longText_b, best_shortText_a, best_shortText_b)
-      else (best_common, best_longText_a, best_longText_b, best_shortText_a, best_shortText_b)
-    let (best_common, best_longText_a, best_longText_b, best_shortText_a, best_shortText_b) = inner -1 "" "" "" "" ""
-    if best_common.Length >= longText.Length / 2 then
-      Some [|best_longText_a; best_longText_b; best_shortText_a; best_shortText_b; best_common|]
+    let j = ref -1
+    let best_common = ref ""
+    let best_longText_a = ref ""
+    let best_longText_b = ref ""
+    let best_shortText_a = ref ""
+    let best_shortText_b = ref ""
+    while !j < shortText.Length && shortText.IndexOf(seed, !j + 1) <> -1 do
+      j := shortText.IndexOf(seed, !j + 1)
+      let prefixLength = this.DiffCommonPrefix(longText.Substring(i), shortText.Substring(!j))
+      let suffixLength = this.DiffCommonSuffix(longText.Substring(0, i), shortText.Substring(0, !j))
+      if String.length !best_common < suffixLength + prefixLength then
+        best_common := shortText.Substring(!j - suffixLength, suffixLength) + shortText.Substring(!j, prefixLength)
+        best_longText_a := longText.Substring(0, i - suffixLength)
+        best_longText_b := longText.Substring(i + prefixLength)
+        best_shortText_a := shortText.Substring(0, !j - suffixLength)
+        best_shortText_b := shortText.Substring(!j + prefixLength)
+    if String.length !best_common >= longText.Length / 2 then
+      Some [|!best_longText_a; !best_longText_b; !best_shortText_a; !best_shortText_b; !best_common|]
     else None
 
   member internal this.DiffHalfMatch(text1, text2) =
@@ -350,14 +347,16 @@ with
     else
       let hm1 = this.DiffHalfMatchI(longText, shortText, (longText.Length + 3) / 4)
       let hm2 = this.DiffHalfMatchI(longText, shortText, (longText.Length + 1) / 2)
-      let hm =
-        match (hm1, hm2) with
-        | (None, None) -> None
-        | (_, None) -> hm1
-        | (None, _) -> hm2
-        | (Some hm1, Some hm2) -> if hm1.[4].Length > hm2.[4].Length then Some hm1 else Some hm2
-      if text1.Length > text2.Length then hm
-      else hm |> Option.map (fun hm -> [|hm.[2]; hm.[3]; hm.[0]; hm.[1]; hm.[4]|])
+      match (hm1, hm2) with
+      | (None, None) -> Choice1Of2 ()
+      | (_, None) -> Choice2Of2 hm1
+      | (None, _) -> Choice2Of2 hm2
+      | (Some hm1, Some hm2) -> (if hm1.[4].Length > hm2.[4].Length then Some hm1 else Some hm2) |> Choice2Of2
+      |> function
+      | Choice1Of2 () -> None
+      | Choice2Of2 hm ->
+        if text1.Length > text2.Length then hm
+        else hm |> Option.map (fun hm -> [|hm.[2]; hm.[3]; hm.[0]; hm.[1]; hm.[4]|])
 
   member private __.BLANKLINEEND = Regex("\\n\\r?\\n\\Z")
   member private __.BLANKLINESTART = Regex("\\A\\r?\\n\\r?\\n")
@@ -420,7 +419,7 @@ with
           else
             diffs.RemoveAt(!pointer + 1)
             decr pointer
-        incr pointer
+      incr pointer
 
   member this.DiffCleanupMerge(diffs: ResizeArray<Diff>) =
     diffs.Add({ Text = ""; Operation = Equal })
@@ -429,7 +428,7 @@ with
     let count_insert = ref 0
     let text_delete = ref ""
     let text_insert = ref ""
-    while !pointer > diffs.Count do
+    while !pointer < diffs.Count do
       let diff = diffs.[!pointer]
       match diff.Operation with
       | Insert ->
@@ -455,6 +454,7 @@ with
               text_delete := (!text_delete).Substring(commonLength)
             let commonLength = this.DiffCommonSuffix(!text_insert, !text_delete)
             if commonLength <> 0 then
+              let diff = diffs.[!pointer]
               diff.Text <- (!text_insert).Substring((!text_insert).Length - commonLength) + diff.Text
               text_insert := (!text_insert).Substring(0, (!text_insert).Length - commonLength)
               text_delete := (!text_delete).Substring(0, (!text_delete).Length - commonLength)
@@ -466,14 +466,14 @@ with
           |> ignore
           pointer := !pointer - !count_delete - !count_insert + (if !count_delete <> 0 then 1 else 0) + (if !count_insert <> 0 then 1 else 0) + 1
         elif !pointer <> 0 && diffs.[!pointer - 1].Operation = Equal then
-          diffs.[!pointer - 1].Text <- diff.Text
+          diffs.[!pointer - 1].Text <- diffs.[!pointer - 1].Text + diff.Text
           diffs.RemoveAt(!pointer)
         else incr pointer
         count_insert := 0
         count_delete := 0
         text_delete := ""
         text_insert := ""
-    if diffs.[diffs.Count - 1].Text.Length = 0 then
+    if String.IsNullOrEmpty diffs.[diffs.Count - 1].Text then
       diffs.RemoveAt(diffs.Count - 1)
     let changes = ref false
     pointer := 1
@@ -617,7 +617,7 @@ with
 
         | None ->
 
-          let checkLines = not <| (checkLines && (text1.Length < 100 || text2.Length < 100))
+          let checkLines = if checkLines && (text1.Length < 100 || text2.Length < 100) then false else checkLines
 
           let (text1, text2, lineArray) =
             if checkLines then
@@ -691,7 +691,7 @@ with
       if not <| String.IsNullOrEmpty commonPrefix then
         diffs.Insert(0, { Text = commonPrefix; Operation = Equal })
       if not <| String.IsNullOrEmpty commonSuffix then
-        diffs.Insert(0, { Text = commonSuffix; Operation = Equal })
+        diffs.Add({ Text = commonSuffix; Operation = Equal })
 
       this.DiffCleanupMerge(diffs)
       diffs
@@ -795,7 +795,7 @@ with
               pointer := !pointer + n
               text
             with :? ArgumentOutOfRangeException as e ->
-              raise  <| ArgumentException(sprintf "Delta length (%d) larger than source text length (%d)." !pointer text1.Length, e)
+              raise <| ArgumentException(sprintf "Delta length (%d) larger than source text length (%d)." !pointer text1.Length, e)
           if c = '=' then diffs.Add({ Text = text; Operation = Equal })
           else diffs.Add({ Text = text; Operation = Delete })
         | c ->
@@ -860,7 +860,7 @@ with
         let rd = Array.zeroCreate<int> (finish + 2)
         rd.[finish + 1] <- (1 <<< d) - 1
 
-        let rec inner j =
+        let rec innerj j =
           if j < !start then ()
           else
             let charMatch =
@@ -876,12 +876,12 @@ with
                 best_loc := j - 1
                 if !best_loc > loc then
                   start := max 1 (2 * loc - !best_loc)
-                  inner (j - 1)
+                  innerj (j - 1)
                 else ()
-              else inner (j - 1)
-            else inner (j - 1)
+              else innerj (j - 1)
+            else innerj (j - 1)
 
-        inner finish
+        innerj finish
         if this.MatchBitapScore(d + 1, loc, loc, pattern) > !score_threshold then ()
         else
           last_rd := rd
@@ -990,8 +990,8 @@ with
     let paddingLength = int this.PatchMargin
     let nullPadding = String(Array.map char [|1 .. paddingLength|])
     for patch in patches do
-      patch.Start1 <- paddingLength
-      patch.Start2 <- paddingLength
+      patch.Start1 <- patch.Start1 + paddingLength
+      patch.Start2 <- patch.Start2 + paddingLength
     let patch = Seq.head patches
     let diffs = patch.Diffs
     if diffs.Count = 0 || (Seq.head diffs).Operation <> Equal then
@@ -1045,6 +1045,7 @@ with
           if not <| String.IsNullOrEmpty !preContext then
             patch.Length1 <- String.length !preContext
             patch.Length2 <- String.length !preContext
+            patch.Diffs.Add({ Text = !preContext; Operation = Equal })
           while bigPatch.Diffs.Count <> 0 && patch.Length1 < patchSize - int this.PatchMargin do
             let diffType = bigPatch.Diffs.[0].Operation
             let diffText = bigPatch.Diffs.[0].Text
@@ -1073,22 +1074,22 @@ with
               patch.Diffs.Add({ Text = diffText; Operation = diffType })
               if diffText = bigPatch.Diffs.[0].Text then bigPatch.Diffs.RemoveAt(0)
               else bigPatch.Diffs.[0].Text <- bigPatch.Diffs.[0].Text.Substring(diffText.Length)
-            preContext := this.DiffText2(patch.Diffs)
-            preContext := (!preContext).Substring(max 0 (String.length !preContext - int this.PatchMargin))
-            let postContext =
-              let x = this.DiffText1(bigPatch.Diffs)
-              if x.Length > int this.PatchMargin then x.Substring(0, int this.PatchMargin)
-              else x
-            if not <| String.IsNullOrEmpty postContext then
-              patch.Length1 <- patch.Length1 + postContext.Length
-              patch.Length2 <- patch.Length2 + postContext.Length
-              if patch.Diffs.Count <> 0 && (Seq.last patch.Diffs).Operation = Equal then
-                let diff = Seq.last patch.Diffs
-                diff.Text <- diff.Text + postContext
-              else patch.Diffs.Add({ Text = postContext; Operation = Equal })
-            if not !empty then
-              incr x
-              patches.Splice(!x, 0, patch) |> ignore
+          preContext := this.DiffText2(patch.Diffs)
+          preContext := (!preContext).Substring(max 0 (String.length !preContext - int this.PatchMargin))
+          let postContext =
+            let x = this.DiffText1(bigPatch.Diffs)
+            if x.Length > int this.PatchMargin then x.Substring(0, int this.PatchMargin)
+            else x
+          if not <| String.IsNullOrEmpty postContext then
+            patch.Length1 <- patch.Length1 + postContext.Length
+            patch.Length2 <- patch.Length2 + postContext.Length
+            if patch.Diffs.Count <> 0 && (Seq.last patch.Diffs).Operation = Equal then
+              let diff = Seq.last patch.Diffs
+              diff.Text <- diff.Text + postContext
+            else patch.Diffs.Add({ Text = postContext; Operation = Equal })
+          if not !empty then
+            incr x
+            patches.Splice(!x, 0, patch) |> ignore
       incr x
 
   member this.PatchApply(patches: ResizeArray<Patch>, text) =
@@ -1107,26 +1108,29 @@ with
       for patch in patches do
         let expected_loc = patch.Start2 + !delta
         let text1 = this.DiffText1(patch.Diffs)
-        let start_loc = ref 0
         let end_loc = ref -1
-        if text1.Length > this.MatchMaxBits then
-          start_loc := this.MatchMain(!text, text1.Substring(0, this.MatchMaxBits), expected_loc)
-          if !start_loc <> -1 then
-            end_loc := this.MatchMain(!text, text1.Substring(text1.Length - this.MatchMaxBits), expected_loc + text1.Length - this.MatchMaxBits)
-            if !end_loc = -1 || !start_loc >= !end_loc then
-              start_loc := -1
-        else start_loc := this.MatchMain(!text, text1, expected_loc)
-        if !start_loc = -1 then
+        let start_loc =
+          if text1.Length > this.MatchMaxBits then
+            let start_loc = this.MatchMain(!text, text1.Substring(0, this.MatchMaxBits), expected_loc)
+            if start_loc <> -1 then
+              end_loc := this.MatchMain(!text, text1.Substring(text1.Length - this.MatchMaxBits), expected_loc + text1.Length - this.MatchMaxBits)
+              if !end_loc = -1 || start_loc >= !end_loc then
+                -1
+              else start_loc
+            else start_loc
+          else
+            this.MatchMain(!text, text1, expected_loc)
+        if start_loc = -1 then
           results.[!x] <- false
-          delta := patch.Length2 - patch.Length1
+          delta := !delta - (patch.Length2 - patch.Length1)
         else
           results.[!x] <- true
-          delta := !delta - !start_loc - expected_loc
+          delta := start_loc - expected_loc
           let text2 =
-            if !end_loc = -1 then String.javaSubstring !start_loc (min (!start_loc + text1.Length) (!text).Length) !text
-            else  String.javaSubstring !start_loc (min (!end_loc + this.MatchMaxBits) (!text).Length) !text
+            if !end_loc = -1 then String.javaSubstring start_loc (min (start_loc + text1.Length) (!text).Length) !text
+            else  String.javaSubstring start_loc (min (!end_loc + this.MatchMaxBits) (!text).Length) !text
           if text1 = text2 then
-            text := (!text).Substring(0, !start_loc) + this.DiffText2(patch.Diffs) + (!text).Substring(!start_loc + text1.Length)
+            text := (!text).Substring(0, start_loc) + this.DiffText2(patch.Diffs) + (!text).Substring(start_loc + text1.Length)
           else
             let diffs = this.DiffMain(text1, text2, false)
             if text1.Length > this.MatchMaxBits && float32 (this.DiffLevenshtein(diffs)) / float32 text1.Length > this.PatchDeleteThreshold then
@@ -1138,8 +1142,8 @@ with
                 if diff.Operation <> Equal then
                   let index2 = this.DiffXIndex(diffs, !index1)
                   match diff.Operation with
-                  | Insert -> text := (!text).Insert(!start_loc + index2, diff.Text)
-                  | Delete -> text := (!text).Substring(0, !start_loc + index2) + (!text).Substring(!start_loc + this.DiffXIndex(diffs, !index1 + diff.Text.Length))
+                  | Insert -> text := (!text).Insert(start_loc + index2, diff.Text)
+                  | Delete -> text := (!text).Substring(0, start_loc + index2) + (!text).Substring(start_loc + this.DiffXIndex(diffs, !index1 + diff.Text.Length))
                   | Equal -> ()
                 if diff.Operation <> Delete then index1 := !index1 + diff.Text.Length
         incr x
@@ -1193,13 +1197,22 @@ with
               let line = line.Replace("+", "%2b")
               let line = HttpUtility.UrlDecode(line, UTF8Encoding(false, true))
               match sign with
-              | '-' -> patch.Diffs.Add({ Text = line; Operation = Delete })
-              | '+' -> patch.Diffs.Add({ Text = line; Operation = Insert })
-              | ' ' -> patch.Diffs.Add({ Text = line; Operation = Equal })
-              | '@' -> ()
+              | '-' ->
+                patch.Diffs.Add({ Text = line; Operation = Delete })
+                true
+              | '+' ->
+                patch.Diffs.Add({ Text = line; Operation = Insert })
+                true
+              | ' ' ->
+                patch.Diffs.Add({ Text = line; Operation = Equal })
+                true
+              | '@' -> false
               | _ -> raise <| ArgumentException(sprintf "Invalid patch mode '%c' in: %s" sign line)
-              text.RemoveFirst()
-              inner ()
+              |> function
+              | true ->
+                text.RemoveFirst()
+                inner ()
+              | false -> ()
             with :? IndexOutOfRangeException ->
               text.RemoveFirst()
               inner ()

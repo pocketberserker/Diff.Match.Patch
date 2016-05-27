@@ -15,3 +15,5 @@ group Test
   source https://api.nuget.org/v3/index.json
 
   nuget Persimmon
+
+  gist pocketberserker/1c919217eb95a03ee942fdfd094a4927 assertSeqEquals.fs
