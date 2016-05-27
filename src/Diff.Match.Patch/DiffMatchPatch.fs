@@ -1207,3 +1207,17 @@ with
       patches
 
   member __.UnescapeForEncodeUriCompatability(str) = Helper.unescapeForEncodeUriCompatability str
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module DiffMatchPatch =
+
+  let Default = {
+    DiffTimeout = 1.0f
+    DiffEditCost = 4
+    DiffDualThreshold = 32s
+    MatchThreshold = 0.5f
+    MatchDistance = 1000
+    PatchDeleteThreshold = 0.5f
+    PatchMargin = 4s
+    MatchMaxBits = 32
+  }
