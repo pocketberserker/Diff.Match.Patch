@@ -1,0 +1,15 @@
+type project
+owners
+    pocketberserker
+authors
+    pocketberserker
+projectUrl
+    https://github.com/pocketberserker/Diff.Match.Patch
+licenseUrl
+    https://github.com/pocketberserker/Diff.Match.Patch/blob/master/LICENSE
+requireLicenseAcceptance
+    false
+tags
+    fsharp, F#, diff, match, patch
+description
+    Diff.Match.Patch is a port of google-diff-match-patch.
