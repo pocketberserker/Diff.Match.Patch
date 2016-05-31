@@ -1,5 +1,7 @@
 # Diff.Match.Patch for FSharp
 
+[![Build status](https://ci.appveyor.com/api/projects/status/c6rmo13khmbjqh5w/branch/master?svg=true)](https://ci.appveyor.com/project/pocketberserker/diff-match-patch/branch/master)
+
 This project is a port of google-diff-match-patch.
 
 # Copyright and License
