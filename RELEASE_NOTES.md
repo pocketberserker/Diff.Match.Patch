@@ -1,1 +1,2 @@
-### 0.1.0 - Unreleased
+### 1.0.0 - May 31 2016
+- initial release
