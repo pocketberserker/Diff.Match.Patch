@@ -2,7 +2,6 @@
 
 open System
 open System.Text
-open System.Web
 open System.Collections.Generic
 open System.Text.RegularExpressions
 open FSharp.Reflection
@@ -75,7 +74,7 @@ with
       | Delete -> text.Append("-")
       | Equal -> text.Append(" ")
       |> ignore
-      text.AppendLine(HttpUtility.UrlEncode(diff.Text, UTF8Encoding()).Replace('+', ' '))
+      text.AppendLine(Uri.Encode(diff.Text).Replace('+', ' '))
       |> ignore
 
     text.ToString()
@@ -760,7 +759,7 @@ with
     let text = StringBuilder()
     for diff in diffs do
       match diff.Operation with
-      | Insert -> text.Append("+").Append(HttpUtility.UrlEncode(diff.Text, UTF8Encoding()).Replace('+', ' ')).Append("\t")
+      | Insert -> text.Append("+").Append(Uri.Encode(diff.Text).Replace('+', ' ')).Append("\t")
       | Delete -> text.Append("-").Append(diff.Text.Length).Append("\t")
       | Equal -> text.Append("=").Append(diff.Text.Length).Append("\t")
       |> ignore
@@ -781,7 +780,7 @@ with
         match token.[0] with
         | '+' ->
           let param = param.Replace("+", "%2b")
-          let param = HttpUtility.UrlDecode(param, UTF8Encoding(false, true))
+          let param = Uri.Decode(param)
           diffs.Add({ Text = param; Operation = Insert })
         | ('-' | '=') as c ->
           let n =
@@ -1195,7 +1194,7 @@ with
               let sign = (Seq.head text).[0]
               let line = (Seq.head text).Substring(1)
               let line = line.Replace("+", "%2b")
-              let line = HttpUtility.UrlDecode(line, UTF8Encoding(false, true))
+              let line = Uri.Decode(line)
               match sign with
               | '-' ->
                 patch.Diffs.Add({ Text = line; Operation = Delete })

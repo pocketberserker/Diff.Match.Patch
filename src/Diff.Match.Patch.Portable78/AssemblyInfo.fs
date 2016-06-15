@@ -2,7 +2,7 @@
 open System.Reflection
 open System.Runtime.CompilerServices
 
-[<assembly: AssemblyTitleAttribute("Diff.Match.Patch")>]
+[<assembly: AssemblyTitleAttribute("Diff.Match.Patch8")>]
 [<assembly: AssemblyProductAttribute("Diff.Match.Patch")>]
 [<assembly: AssemblyDescriptionAttribute("")>]
 [<assembly: InternalsVisibleToAttribute("Diff.Match.Patch.Tests")>]

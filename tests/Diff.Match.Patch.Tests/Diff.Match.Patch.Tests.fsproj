@@ -61,6 +61,7 @@
     <Compile Include="..\..\paket-files\test\pocketberserker\1c919217eb95a03ee942fdfd094a4927\assertSeqEquals.fs">
       <Link>assertSeqEquals.fs</Link>
     </Compile>
+    <Compile Include="UriTest.fs" />
     <Compile Include="DiffMatchPatchTest.fs" />
   </ItemGroup>
   <ItemGroup>

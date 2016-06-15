@@ -13,3 +13,16 @@ tags
     fsharp, F#, diff, match, patch
 description
     Diff.Match.Patch is a port of google-diff-match-patch.
+files
+    ../../bin/Diff.Match.Patch.Portable47/Diff.Match.Patch.dll ==> lib/portable-net45+sl5+netcore45+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable47/Diff.Match.Patch.pdb ==> lib/portable-net45+sl5+netcore45+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable47/Diff.Match.Patch.xml ==> lib/portable-net45+sl5+netcore45+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable7/Diff.Match.Patch.dll ==> lib/portable-net45+netcore45+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable7/Diff.Match.Patch.pdb ==> lib/portable-net45+netcore45+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable7/Diff.Match.Patch.xml ==> lib/portable-net45+netcore45+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable259/Diff.Match.Patch.dll ==> lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable259/Diff.Match.Patch.pdb ==> lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable259/Diff.Match.Patch.xml ==> lib/portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable78/Diff.Match.Patch.dll ==> lib/portable-net45+netcore45+wp8+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable78/Diff.Match.Patch.pdb ==> lib/portable-net45+netcore45+wp8+MonoAndroid1+MonoTouch1
+    ../../bin/Diff.Match.Patch.Portable78/Diff.Match.Patch.xml ==> lib/portable-net45+netcore45+wp8+MonoAndroid1+MonoTouch1
