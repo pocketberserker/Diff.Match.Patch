@@ -58,7 +58,7 @@ let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
 Target "AssemblyInfo" (fun _ ->
     let replace (oldValue:string) newValue (str:string) = str.Replace(oldValue, newValue)
     let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title (projectName |> replace ".Portable259" "" |> replace ".Portable47" "" |> replace ".Portable7" "" |> replace ".Portable78" "")
+        [ Attribute.Title (projectName |> replace ".Portable259" "" |> replace ".Portable47" "" |> replace ".Portable78" "" |> replace ".Portable7" "")
           Attribute.Product project
           Attribute.Description summary
           Attribute.InternalsVisibleTo("Diff.Match.Patch.Tests")
