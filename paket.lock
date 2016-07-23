@@ -1,9 +1,10 @@
-
+NUGET
+  remote: http://api.nuget.org/v3/index.json
+    FSharp.Core (4.0.0.1)
 
 GROUP Build
 NUGET
   remote: http://api.nuget.org/v3/index.json
-  specs:
     FAKE (4.27)
     FAKE.Lib (4.27)
     FAKE.Persimmon (1.0.4)
@@ -22,15 +23,12 @@ NUGET
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
-  specs:
     modules/Octokit/Octokit.fsx (8c077f35f8cd0350485109ddd1810dafe9885d1a)
       Octokit
 GROUP Test
 NUGET
   remote: http://api.nuget.org/v3/index.json
-  specs:
     Persimmon (1.1)
 GIST
   remote: pocketberserker/1c919217eb95a03ee942fdfd094a4927
-  specs:
     assertSeqEquals.fs (e45c9d968564362118aa104a6dfdafec1b9b947f)
