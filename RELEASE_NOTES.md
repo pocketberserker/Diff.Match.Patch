@@ -1,3 +1,6 @@
+### 2.0.0 - August 14 2016
+- explicit dependency on FSharp.Core nuget package
+
 ### 1.1.0 - June 27 2016
 - support PCL-portable libraries
 
