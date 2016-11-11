@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>Diff.Match.Patch</id>
+    <version>@build.number@</version>
+    <authors>pocketberserker</authors>
+    <owners>pocketberserker</owners>
+    <licenseUrl>https://github.com/pocketberserker/DIff.Match.Patch/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/pocketberserker/DIff.Match.Patch</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Diff.Match.Patch is a port of google-diff-match-patch.</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <tags>F# fsharp diff match patch</tags>
+    @dependencies@
+    @references@
+  </metadata>
+</package>

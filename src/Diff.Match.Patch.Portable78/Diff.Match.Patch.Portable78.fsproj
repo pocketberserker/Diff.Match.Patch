@@ -35,15 +35,6 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Diff.Match.Patch.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="..\Diff.Match.Patch\Prelude.fs">
-      <Link>Prelude.fs</Link>
-    </Compile>
-    <Compile Include="..\Diff.Match.Patch\DiffMatchPatch.fs">
-      <Link>DiffMatchPatch.fs</Link>
-    </Compile>
-  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>
   </PropertyGroup>
@@ -55,6 +46,16 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <None Include="paket.references" />
+    <Compile Include="..\Diff.Match.Patch.NET20\Prelude.fs">
+      <Link>Prelude.fs</Link>
+    </Compile>
+    <Compile Include="..\Diff.Match.Patch.NET20\DiffMatchPatch.fs">
+      <Link>DiffMatchPatch.fs</Link>
+    </Compile>
+  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5')">
       <ItemGroup>

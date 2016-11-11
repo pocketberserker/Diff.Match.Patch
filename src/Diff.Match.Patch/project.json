@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "name": "Diff.Match.Patch",
+  "buildOptions": {
+    "debugType": "portable",
+    "compilerName": "fsc",
+    "compile": {
+      "includeFiles": [
+        "./AssemblyInfo.fs",
+        "../Diff.Match.Patch.NET20/Prelude.fs",
+        "../Diff.Match.Patch.NET20/DiffMatchPatch.fs"
+      ]
+    }
+  },
+  "tools": {
+    "dotnet-mergenupkg": "1.0.*",
+    "dotnet-compile-fsc": {
+      "version": "1.0.0-preview2-*",
+      "imports": [
+        "dnxcore50",
+        "portable-net45+win81",
+        "netstandard1.3"
+      ]
+    }
+  },
+  "frameworks": {
+    "net40": {
+      "dependencies": {
+        "FSharp.Core": "4.0.0.1"
+      }
+    },
+    "net45": {
+      "dependencies": {
+        "FSharp.Core": "4.0.0.1"
+      }
+    },
+    "netstandard1.6": {
+      "dependencies": {
+        "NETStandard.Library": "1.6.0",
+        "FSharp.Core": "4.0.1.7-alpha"
+      }
+    }
+  }
+}

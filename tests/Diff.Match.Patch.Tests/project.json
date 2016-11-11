@@ -1,0 +1,39 @@
+{
+  "buildOptions": {
+    "debugType": "portable",
+    "compilerName": "fsc",
+    "compile": {
+      "includeFiles": [
+        "../../paket-files/test/pocketberserker/1c919217eb95a03ee942fdfd094a4927/assertSeqEquals.fs",
+        "../Diff.Match.Patch.NET20.Tests/UriTest.fs",
+        "../Diff.Match.Patch.NET20.Tests/DiffMatchPatchTest.fs"
+      ]
+    }
+  },
+  "dependencies": {
+    "Diff.Match.Patch": {
+      "target": "project"
+    },
+    "Persimmon": "2.0.1-alpha4"
+  },
+  "tools": {
+    "dotnet-compile-fsc": {
+      "version": "1.0.0-preview2-*",
+      "imports": [
+        "dnxcore50",
+        "portable-net45+win81",
+        "netstandard1.3"
+      ]
+    }
+  },
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+        "System.Web": "4.0.0.0"
+      },
+      "dependencies": {
+        "FSharp.Core": "4.0.0.1"
+      }
+    }
+  }
+}

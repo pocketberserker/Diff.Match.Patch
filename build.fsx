@@ -12,18 +12,11 @@ open System.IO
 open SourceLink
 #endif
 
+let isDotnetInstalled = DotNetCli.isInstalled()
+
+let outDir = "bin"
+
 let project = "Diff.Match.Patch"
-
-// Short summary of the project
-// (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = ""
-
-// Longer description of the project
-// (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = ""
-
-// File system information
-let solutionFile  = "Diff.Match.Patch.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
@@ -58,9 +51,8 @@ let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
 Target "AssemblyInfo" (fun _ ->
     let replace (oldValue:string) newValue (str:string) = str.Replace(oldValue, newValue)
     let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title (projectName |> replace ".Portable259" "" |> replace ".Portable47" "" |> replace ".Portable78" "" |> replace ".Portable7" "")
+        [ Attribute.Title (projectName |> replace ".NET20" "" |> replace ".Portable259" "" |> replace ".Portable78" "" |> replace ".Portable47" "" |> replace ".Portable7" "")
           Attribute.Product project
-          Attribute.Description summary
           Attribute.InternalsVisibleTo("Diff.Match.Patch.Tests")
           Attribute.Version release.AssemblyVersion
           Attribute.FileVersion release.AssemblyVersion
@@ -89,31 +81,65 @@ Target "AssemblyInfo" (fun _ ->
 // src folder to support multiple project outputs
 Target "CopyBinaries" (fun _ ->
     !! "src/**/*.??proj"
-    |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin/Release", "bin" @@ (System.IO.Path.GetFileNameWithoutExtension f)))
+    |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) @@ "bin/Release", outDir @@ (System.IO.Path.GetFileNameWithoutExtension f)))
     |>  Seq.iter (fun (fromDir, toDir) -> CopyDir toDir fromDir (fun _ -> true))
+)
+
+Target "SetVersionInProjectJSON" (fun _ ->
+  !! "src/**/project.json"
+  |> Seq.iter (DotNetCli.SetVersionInProjectJson release.NugetVersion)
 )
 
 // --------------------------------------------------------------------------------------
 // Clean build results
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"]
+  CleanDirs [outDir; "temp"]
+  !! "./src/**/bin/Release"
+  |> CleanDirs
 )
 
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
+let isTravisCI = (environVarOrDefault "TRAVIS" "") = "true"
+
 Target "Build" (fun _ ->
-    !! solutionFile
-    |> MSBuildRelease "" "Rebuild"
-    |> ignore
+  !! "./**/*.fsproj"
+  |> MSBuildRelease "" "Rebuild"
+  |> ignore
+)
+
+Target "Build.NETCore" (fun _ ->
+  DotNetCli.Restore id
+
+  DotNetCli.Build (fun p ->
+    { p with
+        Project = "src/Diff.Match.Patch/project.json"
+    }
+  )
 )
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 Target "RunTests" (fun _ ->
-    !! testAssemblies
-    |> Persimmon id
+  !! testAssemblies
+  |> Persimmon id
+)
+
+Target "RunTests.NETCore" (fun _ ->
+//  DotNetCli.Test (fun p ->
+//    { p with
+//        Project = "tests/Diff.Match.Patch.Tests/project.json"
+//    }
+//  )
+  DotNetCli.Build (fun p ->
+    { p with
+        Project = "tests/Diff.Match.Patch.Tests/project.json"
+    }
+  )
+  !! "tests/Diff.Match.Patch.Tests/bin/Release/**/*Tests*.dll"
+  |> Persimmon id
 )
 
 #if MONO
@@ -137,18 +163,98 @@ Target "SourceLink" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build a NuGet package
 
-Target "NuGet" (fun _ ->
-    Paket.Pack(fun p ->
-        { p with
-            OutputPath = "bin"
-            Version = release.NugetVersion
-            ReleaseNotes = toLines release.Notes})
+Target "NuGet.Pack" (fun _ ->
+
+  let packagingDir = outDir @@ "nuget" @@ "Diff.Match.Patch"
+  [
+    "bin/Diff.Match.Patch.NET20/Diff.Match.Patch.dll"
+    "bin/Diff.Match.Patch.NET20/Diff.Match.Patch.XML"
+  ]
+  |> CopyFiles (packagingDir @@ "lib" @@ "net20")
+  [
+    "bin/Diff.Match.Patch.Portable47/Diff.Match.Patch.dll"
+    "bin/Diff.Match.Patch.Portable47/Diff.Match.Patch.XML"
+  ]
+  |> CopyFiles (packagingDir @@ "lib" @@ "portable45-net45+sl5+win8")
+  [
+    "bin/Diff.Match.Patch.Portable7/Diff.Match.Patch.dll"
+    "bin/Diff.Match.Patch.Portable7/Diff.Match.Patch.XML"
+  ]
+  |> CopyFiles (packagingDir @@ "lib" @@ "portable45-net45+win8")
+  [
+    "bin/Diff.Match.Patch.Portable78/Diff.Match.Patch.dll"
+    "bin/Diff.Match.Patch.Portable78/Diff.Match.Patch.XML"
+  ]
+  |> CopyFiles (packagingDir @@ "lib" @@ "portable45-net45+win8+wp8")
+  [
+    "bin/Diff.Match.Patch.Portable259/Diff.Match.Patch.dll"
+    "bin/Diff.Match.Patch.Portable259/Diff.Match.Patch.XML"
+  ]
+  |> CopyFiles (packagingDir @@ "lib" @@ "portable45-net45+win8+wp8+wpa81")
+
+  let dependencies = [
+    ("FSharp.Core", "4.0.0.1")
+  ]
+
+  NuGet (fun p ->
+    {
+      p with
+        OutputPath = outDir
+        WorkingDir = packagingDir
+        Version = release.NugetVersion
+        ReleaseNotes = toLines release.Notes
+        DependenciesByFramework =
+          [
+            {
+              FrameworkVersion = "net20"
+              Dependencies = []
+            }
+            {
+              FrameworkVersion = ".NETPortable4.5-Profile259"
+              Dependencies = dependencies
+            }
+            {
+              FrameworkVersion = ".NETPortable4.5-Profile47"
+              Dependencies = dependencies
+            }
+            {
+              FrameworkVersion = ".NETPortable4.5-Profile7"
+              Dependencies = dependencies
+            }
+            {
+              FrameworkVersion = ".NETPortable4.5-Profile78"
+              Dependencies = dependencies
+            }
+          ]
+    }
+  ) "src/Diff.Match.Patch.NET20/Diff.Match.Patch.nuspec"
+)
+
+Target "NuGet.AddNetCore" (fun _ ->
+  if not isDotnetInstalled then failwith "You need to install .NET core to publish NuGet packages"
+
+  DotNetCli.Pack (fun p ->
+    { p with
+        Project = "src/Diff.Match.Patch/project.json"
+    }
+  )
+
+  let nupkg = sprintf "../../bin/Diff.Match.Patch.%s.nupkg" release.NugetVersion
+  let netcoreNupkg = sprintf "bin/Release/Diff.Match.Patch.%s.nupkg" release.NugetVersion
+
+  let mergeNupkg framework =
+    let exitCode = Shell.Exec("dotnet", sprintf """mergenupkg --source "%s" --other "%s" --framework %s""" nupkg netcoreNupkg framework, "src/Diff.Match.Patch/")
+    if exitCode <> 0 then failwithf "Command failed with exit code %i" exitCode
+
+  mergeNupkg "netstandard1.6"
+  mergeNupkg "net40"
+  mergeNupkg "net45"
 )
 
 Target "PublishNuget" (fun _ ->
-    Paket.Push(fun p ->
-        { p with
-            WorkingDir = "bin" })
+  Paket.Push(fun p ->
+    { p with
+        WorkingDir = outDir })
 )
 
 #load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
@@ -170,26 +276,35 @@ Target "Release" (fun _ ->
     |> Async.RunSynchronously
 )
 
-Target "BuildPackage" DoNothing
+Target "NETCore" DoNothing
+
+Target "NuGet" DoNothing
 
 Target "All" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "CopyBinaries"
-  ==> "RunTests"
+  ==> "SetVersionInProjectJSON"
+  =?> ("Build", not isTravisCI)
+  =?> ("CopyBinaries", not isTravisCI)
+  =?> ("RunTests", not isTravisCI)
+  =?> ("NETCore", isDotnetInstalled)
   ==> "All"
+
+"Build.NETCore"
+  ==> "RunTests.NETCore"
+  ==> "NETCore"
 
 "All"
 #if MONO
 #else
   =?> ("SourceLink", Pdbstr.tryFind().IsSome )
 #endif
+  ==> "NuGet.Pack"
+  ==> "NuGet.AddNetCore"
   ==> "NuGet"
-  ==> "BuildPackage"
 
-"BuildPackage"
+"NuGet"
   ==> "PublishNuget"
   ==> "Release"
 

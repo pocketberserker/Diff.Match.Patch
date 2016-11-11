@@ -188,3 +188,5 @@ paket-files
 *.orig
 .paket/paket.exe
 .fake/
+.vs/
+project.lock.json
