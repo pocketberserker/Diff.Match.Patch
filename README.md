@@ -1,7 +1,7 @@
 # Diff.Match.Patch for FSharp
 
 [![Build status](https://ci.appveyor.com/api/projects/status/c6rmo13khmbjqh5w/branch/master?svg=true)](https://ci.appveyor.com/project/pocketberserker/diff-match-patch/branch/master)
-[![NuGet Status](http://img.shields.io/nuget/v/Diff.Match.Patch.svg?style=flat)](https://www.nuget.org/packages/Diff,Match.Patch/)
+[![NuGet Status](http://img.shields.io/nuget/v/Diff.Match.Patch.svg?style=flat)](https://www.nuget.org/packages/Diff.Match.Patch/)
 
 This project is a port of google-diff-match-patch.
 
