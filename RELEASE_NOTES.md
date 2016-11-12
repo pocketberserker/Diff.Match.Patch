@@ -1,3 +1,6 @@
+### 2.0.1-alpha1 - November 12 2016
+- support .NET Core
+
 ### 2.0.0 - August 14 2016
 - explicit dependency on FSharp.Core nuget package
 

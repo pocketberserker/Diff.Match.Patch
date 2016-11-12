@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
+  "version": "2.0.1-alpha1",
   "name": "Diff.Match.Patch",
   "buildOptions": {
     "debugType": "portable",
