@@ -5,8 +5,8 @@
     <version>@build.number@</version>
     <authors>pocketberserker</authors>
     <owners>pocketberserker</owners>
-    <licenseUrl>https://github.com/pocketberserker/DIff.Match.Patch/blob/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/pocketberserker/DIff.Match.Patch</projectUrl>
+    <licenseUrl>https://github.com/pocketberserker/Diff.Match.Patch/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/pocketberserker/Diff.Match.Patch</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Diff.Match.Patch is a port of google-diff-match-patch.</description>
     <releaseNotes>@releaseNotes@</releaseNotes>
