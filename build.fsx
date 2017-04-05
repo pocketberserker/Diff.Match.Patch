@@ -41,43 +41,43 @@ let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
 // Helper active pattern for project types
 let (|Fsproj|Csproj|Vbproj|) (projFileName:string) =
-    match projFileName with
-    | f when f.EndsWith("fsproj") -> Fsproj
-    | f when f.EndsWith("csproj") -> Csproj
-    | f when f.EndsWith("vbproj") -> Vbproj
-    | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
+  match projFileName with
+  | f when f.EndsWith("fsproj") -> Fsproj
+  | f when f.EndsWith("csproj") -> Csproj
+  | f when f.EndsWith("vbproj") -> Vbproj
+  | _                           -> failwith (sprintf "Project file %s not supported. Unknown project type." projFileName)
 
 // Generate assembly info files with the right version & up-to-date information
 Target "AssemblyInfo" (fun _ ->
-    let replace (oldValue:string) newValue (str:string) = str.Replace(oldValue, newValue)
-    let getAssemblyInfoAttributes projectName =
-        [ Attribute.Title (projectName |> replace ".NET20" "" |> replace ".Portable259" "" |> replace ".Portable78" "" |> replace ".Portable47" "" |> replace ".Portable7" "")
-          Attribute.Product project
-          Attribute.InternalsVisibleTo("Diff.Match.Patch.Tests")
-          Attribute.Version release.AssemblyVersion
-          Attribute.FileVersion release.AssemblyVersion
-          Attribute.InformationalVersion release.NugetVersion ]
+  let replace (oldValue:string) newValue (str:string) = str.Replace(oldValue, newValue)
+  let getAssemblyInfoAttributes projectName =
+    [ Attribute.Title (projectName |> replace ".NET20" "" |> replace ".Portable259" "" |> replace ".Portable78" "" |> replace ".Portable47" "" |> replace ".Portable7" "")
+      Attribute.Product project
+      Attribute.InternalsVisibleTo("Diff.Match.Patch.Tests")
+      Attribute.Version release.AssemblyVersion
+      Attribute.FileVersion release.AssemblyVersion
+      Attribute.InformationalVersion release.NugetVersion ]
 
-    let getProjectDetails projectPath =
-        let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
-        ( projectPath,
-          projectName,
-          System.IO.Path.GetDirectoryName(projectPath),
-          (getAssemblyInfoAttributes projectName)
-        )
+  let getProjectDetails projectPath =
+    let projectName = System.IO.Path.GetFileNameWithoutExtension(projectPath)
+    ( projectPath,
+      projectName,
+      System.IO.Path.GetDirectoryName(projectPath),
+      (getAssemblyInfoAttributes projectName)
+    )
 
-    !! "src/**/*.??proj"
-    |> Seq.choose (fun p ->
-      let name = Path.GetFileNameWithoutExtension(p)
-      if name.EndsWith("NETCore") || name.EndsWith("NET40") || name.EndsWith("NET45") then None
-      else getProjectDetails p |> Some
-    )
-    |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
-        match projFileName with
-        | Fsproj -> CreateFSharpAssemblyInfo (("src" @@ folderName) @@ "AssemblyInfo.fs") attributes
-        | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
-        | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
-    )
+  !! "src/**/*.??proj"
+  |> Seq.choose (fun p ->
+    let name = Path.GetFileNameWithoutExtension(p)
+    if name.EndsWith("NETCore") || name.EndsWith("NET40") || name.EndsWith("NET45") then None
+    else getProjectDetails p |> Some
+  )
+  |> Seq.iter (fun (projFileName, projectName, folderName, attributes) ->
+    match projFileName with
+    | Fsproj -> CreateFSharpAssemblyInfo (("src" @@ folderName) @@ "AssemblyInfo.fs") attributes
+    | Csproj -> CreateCSharpAssemblyInfo ((folderName @@ "Properties") @@ "AssemblyInfo.cs") attributes
+    | Vbproj -> CreateVisualBasicAssemblyInfo ((folderName @@ "My Project") @@ "AssemblyInfo.vb") attributes
+  )
 )
 
 // Copies binaries from default VS location to exepcted bin folder
@@ -179,13 +179,13 @@ Target "RunTests.NETCore" (fun _ ->
 // the ability to step through the source code of external libraries https://github.com/ctaggart/SourceLink
 
 Target "SourceLink" (fun _ ->
-    let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
-    !! "src/**/*.??proj"
-    -- "src/**/*.shproj"
-    |> Seq.iter (fun projFile ->
-        let proj = VsProj.LoadRelease projFile
-        SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
-    )
+  let baseUrl = sprintf "%s/%s/{0}/%%var2%%" gitRaw project
+  !! "src/**/*.??proj"
+  -- "src/**/*.shproj"
+  |> Seq.iter (fun projFile ->
+    let proj = VsProj.LoadRelease projFile
+    SourceLink.Index proj.CompilesNotLinked proj.OutputFilePdb __SOURCE_DIRECTORY__ baseUrl
+  )
 )
 
 #endif
@@ -216,19 +216,19 @@ Target "PublishNuget" (fun _ ->
 open Octokit
 
 Target "Release" (fun _ ->
-    StageAll ""
-    Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
-    Branches.push ""
+  StageAll ""
+  Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+  Branches.push ""
 
-    Branches.tag "" release.NugetVersion
-    Branches.pushTag "" "origin" release.NugetVersion
+  Branches.tag "" release.NugetVersion
+  Branches.pushTag "" "origin" release.NugetVersion
 
-    // release on github
-    createClient (getBuildParamOrDefault "github-user" "") (getBuildParamOrDefault "github-pw" "")
-    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
-    // TODO: |> uploadFile "PATH_TO_FILE"
-    |> releaseDraft
-    |> Async.RunSynchronously
+  // release on github
+  createClient (getBuildParamOrDefault "github-user" "") (getBuildParamOrDefault "github-pw" "")
+  |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
+  // TODO: |> uploadFile "PATH_TO_FILE"
+  |> releaseDraft
+  |> Async.RunSynchronously
 )
 
 Target "NETCore" DoNothing
