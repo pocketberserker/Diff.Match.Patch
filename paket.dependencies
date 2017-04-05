@@ -1,7 +1,11 @@
 source https://api.nuget.org/v3/index.json
-source https://www.nuget.org/api/v2/
 
-nuget FSharp.Core
+nuget FSharp.Core = 4.0.0.1
+
+group FSharp3
+  source https://api.nuget.org/v3/index.json
+
+  nuget FSharp.Core = 3.1.2.5
 
 group Build
   source https://api.nuget.org/v3/index.json
@@ -10,13 +14,13 @@ group Build
   nuget Nuget.CommandLine
   nuget SourceLink.Fake
   nuget FAKE.Persimmon
-  nuget Persimmon.Console = 2.0.1-alpha4
+  nuget Persimmon.Console = 2.0.1-beta1
 
   github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Test
   source https://api.nuget.org/v3/index.json
 
-  nuget Persimmon = 2.0.1-alpha4
+  nuget Persimmon = 2.0.1-beta1
 
   gist pocketberserker/1c919217eb95a03ee942fdfd094a4927 assertSeqEquals.fs

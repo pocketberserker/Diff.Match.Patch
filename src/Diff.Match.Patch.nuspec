@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>Diff.Match.Patch</id>
+    <version>@build.number@</version>
+    <authors>pocketberserker</authors>
+    <owners>pocketberserker</owners>
+    <licenseUrl>https://github.com/pocketberserker/Diff.Match.Patch/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/pocketberserker/Diff.Match.Patch</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Diff.Match.Patch is a port of google-diff-match-patch.</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <tags>F# fsharp diff match patch</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework2.0">
+        <dependency id="FSharp.Core" version="3.1.2.5" />
+      </group>
+      <group targetFramework=".NETFramework4.0">
+        <dependency id="FSharp.Core" version="4.0.0.1" />
+      </group>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="FSharp.Core" version="4.0.0.1" />
+      </group>
+      <group targetFramework="portable45-net45+sl5+win8">
+        <dependency id="FSharp.Core" version="4.0.0.1" />
+      </group>
+      <group targetFramework="portable45-net45+win8">
+        <dependency id="FSharp.Core" version="4.0.0.1" />
+      </group>
+      <group targetFramework="portable45-net45+win8+wp8">
+        <dependency id="FSharp.Core" version="4.0.0.1" />
+      </group>
+      <group targetFramework="portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
+        <dependency id="FSharp.Core" version="4.0.0.1" />
+      </group>
+      <group targetFramework=".NETStandard1.6">
+        <dependency id="FSharp.Core" version="4.1.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Diff.Match.Patch.NET20/Diff.Match.Patch.dll" target="lib/net20" />
+    <file src="Diff.Match.Patch.NET20/Diff.Match.Patch.XML" target="lib/net20" />
+    <file src="Diff.Match.Patch.NET40/net40/Diff.Match.Patch.dll" target="lib/net40" />
+    <file src="Diff.Match.Patch.NET40/net40/Diff.Match.Patch.XML" target="lib/net40" />
+    <file src="Diff.Match.Patch.NET45/net45/Diff.Match.Patch.dll" target="lib/net45" />
+    <file src="Diff.Match.Patch.NET45/net45/Diff.Match.Patch.XML" target="lib/net45" />
+    <file src="Diff.Match.Patch.NETCore/netstandard1.6/Diff.Match.Patch.dll" target="lib/netstandard16" />
+    <file src="Diff.Match.Patch.Portable47/Diff.Match.Patch.dll" target="lib/portable45-net45+sl5+win8" />
+    <file src="Diff.Match.Patch.Portable47/Diff.Match.Patch.XML" target="lib/portable45-net45+sl5+win8" />
+    <file src="Diff.Match.Patch.Portable7/Diff.Match.Patch.dll" target="lib/portable45-net45+win8" />
+    <file src="Diff.Match.Patch.Portable7/Diff.Match.Patch.XML" target="lib/portable45-net45+win8" />
+    <file src="Diff.Match.Patch.Portable78/Diff.Match.Patch.dll" target="lib/portable45-net45+win8+wp8" />
+    <file src="Diff.Match.Patch.Portable78/Diff.Match.Patch.XML" target="lib/portable45-net45+win8+wp8" />
+    <file src="Diff.Match.Patch.Portable259/Diff.Match.Patch.dll" target="lib/portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="Diff.Match.Patch.Portable259/Diff.Match.Patch.XML" target="lib/portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+</files>
+</package>
