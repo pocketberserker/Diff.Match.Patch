@@ -121,31 +121,33 @@ Target "Build.NETCore" (fun _ ->
   let net45Project = "src/Diff.Match.Patch.NET45/Diff.Match.Patch.NET45.fsproj"
   let netCoreProject = "src/Diff.Match.Patch.NETCore/Diff.Match.Patch.NETCore.fsproj"
 
-  DotNetCli.Restore (fun p ->
-    { p with
-        Project = net40Project
-    }
-  )
-  DotNetCli.Build (fun p ->
-    { p with
-        Project = net40Project
-        Configuration = configuration
-        AdditionalArgs = args
-    }
-  )
+  if not isTravisCI then
 
-  DotNetCli.Restore (fun p ->
-    { p with
-        Project = net45Project
-    }
-  )
-  DotNetCli.Build (fun p ->
-    { p with
-        Project = net45Project
-        Configuration = configuration
-        AdditionalArgs = args
-    }
-  )
+    DotNetCli.Restore (fun p ->
+      { p with
+          Project = net40Project
+      }
+    )
+    DotNetCli.Build (fun p ->
+      { p with
+          Project = net40Project
+          Configuration = configuration
+          AdditionalArgs = args
+      }
+    )
+
+    DotNetCli.Restore (fun p ->
+      { p with
+          Project = net45Project
+      }
+    )
+    DotNetCli.Build (fun p ->
+      { p with
+          Project = net45Project
+          Configuration = configuration
+          AdditionalArgs = args
+      }
+    )
 
   DotNetCli.Restore (fun p ->
     { p with
