@@ -19,7 +19,7 @@ NUGET
     NuGet.CommandLine (3.5)
     Octokit (0.24)
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
-    Persimmon.Console (2.0.1-beta1)
+    Persimmon.Console (2.0.1)
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
@@ -33,7 +33,7 @@ NUGET
 GROUP Test
 NUGET
   remote: https://api.nuget.org/v3/index.json
-    FSharp.Core (4.1.2) - framework: net20, >= net40, >= netstandard16
+    FSharp.Core (4.1.2) - framework: net20, >= net40, >= netstandard16, portable-net45+win8+wp8+wpa81
       System.Collections (>= 4.0.11) - framework: >= netstandard16
       System.Console (>= 4.0) - framework: >= netstandard16
       System.Diagnostics.Debug (>= 4.0.11) - framework: >= netstandard16
@@ -60,8 +60,8 @@ NUGET
       System.ValueTuple (>= 4.3) - framework: >= net10, netstandard10, netstandard11, netstandard12, netstandard13, netstandard14, netstandard15
     Microsoft.NETCore.Platforms (1.1) - framework: net20, >= net40, >= netstandard16
     Microsoft.NETCore.Targets (1.1) - framework: net20, >= net40, >= netstandard16
-    Persimmon (2.0.1-beta1)
-      FSharp.Core (>= 3.1.2.5) - framework: net20, >= net40
+    Persimmon (2.0.1)
+      FSharp.Core (>= 3.1.2.5) - framework: net20, >= net40, portable-net45+win8+wp8+wpa81
       FSharp.Core (>= 4.1.2) - framework: >= netstandard16
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - framework: net20, >= net40, >= netstandard16
     runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3) - framework: net20, >= net40, >= netstandard16

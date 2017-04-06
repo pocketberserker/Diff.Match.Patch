@@ -14,13 +14,12 @@ group Build
   nuget Nuget.CommandLine
   nuget SourceLink.Fake
   nuget FAKE.Persimmon
-  nuget Persimmon.Console = 2.0.1-beta1
 
   github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 group Test
   source https://api.nuget.org/v3/index.json
 
-  nuget Persimmon = 2.0.1-beta1
+  nuget Persimmon
 
   gist pocketberserker/1c919217eb95a03ee942fdfd094a4927 assertSeqEquals.fs
