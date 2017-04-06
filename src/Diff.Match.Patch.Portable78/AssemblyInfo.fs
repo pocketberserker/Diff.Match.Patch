@@ -8,7 +8,7 @@ open System.Runtime.CompilerServices
 [<assembly: InternalsVisibleToAttribute("Diff.Match.Patch.Tests")>]
 [<assembly: AssemblyVersionAttribute("2.0.1")>]
 [<assembly: AssemblyFileVersionAttribute("2.0.1")>]
-[<assembly: AssemblyInformationalVersionAttribute("2.0.1-alpha1")>]
+[<assembly: AssemblyInformationalVersionAttribute("2.0.1")>]
 do ()
 
 module internal AssemblyVersionInformation =
@@ -17,4 +17,4 @@ module internal AssemblyVersionInformation =
     let [<Literal>] InternalsVisibleTo = "Diff.Match.Patch.Tests"
     let [<Literal>] AssemblyVersion = "2.0.1"
     let [<Literal>] AssemblyFileVersion = "2.0.1"
-    let [<Literal>] AssemblyInformationalVersion = "2.0.1-alpha1"
+    let [<Literal>] AssemblyInformationalVersion = "2.0.1"

@@ -1,4 +1,4 @@
-### 2.0.1-alpha1 - November 12 2016
+### 2.0.1 - April 6 2017
 - support .NET Core
 
 ### 2.0.0 - August 14 2016
