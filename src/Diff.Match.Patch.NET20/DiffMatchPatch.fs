@@ -917,7 +917,7 @@ with
 
   member this.PatchMake(text1: string, diffs: ResizeArray<Diff>) =
     let patches = ResizeArray<Patch>()
-    if Seq.length diffs = 0 then patches
+    if Seq.isEmpty diffs then patches
     else
       let patch = ref { Diffs = ResizeArray<Diff>(); Start1 = 0; Start2 = 0; Length1 = 0; Length2 = 0 }
       let char_count1 = ref 0
