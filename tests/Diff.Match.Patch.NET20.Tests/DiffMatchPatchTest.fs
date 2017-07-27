@@ -932,33 +932,33 @@ let ``patch object`` = test {
     Length2 = 17
   }
   do!
-    patch.ToString().Replace("\r", "").Split([|'\n'|])
-    |> assertEquals [|"@@ -21,18 +22,17 @@"; " jump"; "-s"; "+ed"; "  over "; "-the"; "+a"; " %0alaz"; ""|]
+    patch.ToString()
+    |> assertEquals "@@ -21,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n %0alaz\n"
 }
 
 let ``patch fromText`` = parameterize {
   source [
-    [|"@@ -1 +1 @@"; "-a"; "+b"; ""|]
-    [|"@@ -1,3 +0,0 @@"; "-abc"; ""|]
-    [|"@@ -0,0 +1,3 @@"; "+abc"; ""|]
+    "@@ -1 +1 @@\n-a\n+b\n"
+    "@@ -1,3 +0,0 @@\n-abc\n"
+    "@@ -0,0 +1,3 @@\n+abc\n"
   ]
   run (fun input -> test {
     let dmp = DiffMatchPatch.Default
     do!
-      dmp.PatchFromText(String.concat "\n" input).[0].ToString().Replace("\r", "").Split([|'\n'|])
+      dmp.PatchFromText(input).[0].ToString()
       |> assertEquals input
   })
 }
 
 let ``patch toText`` = parameterize {
   source [
-    [|"@@ -21,18 +22,17 @@"; " jump"; "-s"; "+ed"; "  over "; "-the"; "+a"; "  laz"; ""|]
-    [|"@@ -1,9 +1,9 @@"; "-f"; "+F"; " oo+fooba"; "@@ -7,9 +7,9 @@"; " obar"; "-,"; "+."; "  tes"; ""|]
+    "@@ -21,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n  laz\n"
+    "@@ -1,9 +1,9 @@\n-f\n+F\n oo+fooba\n@@ -7,9 +7,9 @@\n obar\n-,\n+.\n  tes\n"
   ]
   run (fun input -> test {
     let dmp = DiffMatchPatch.Default
-    let patches = dmp.PatchFromText(String.concat "\n" input)
-    do! assertEquals input (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
+    let patches = dmp.PatchFromText(input)
+    do! assertEquals input (dmp.PatchToText(patches))
   })
 }
 
@@ -967,29 +967,29 @@ let ``patch addContext`` = parameterize {
     (
       "@@ -21,4 +21,10 @@\n-jump\n+somersault\n",
       "The quick brown fox jumps over the lazy dog.",
-      [|"@@ -17,12 +17,18 @@"; " fox "; "-jump"; "+somersault"; " s ov"; ""|]
+      "@@ -17,12 +17,18 @@\n fox \n-jump\n+somersault\n s ov\n"
     )
     (
       "@@ -21,4 +21,10 @@\n-jump\n+somersault\n",
       "The quick brown fox jumps.",
-      [|"@@ -17,10 +17,16 @@"; " fox "; "-jump"; "+somersault"; " s."; ""|]
+      "@@ -17,10 +17,16 @@\n fox \n-jump\n+somersault\n s.\n"
     )
     (
       "@@ -3 +3,2 @@\n-e\n+at\n",
       "The quick brown fox jumps.",
-      [|"@@ -1,7 +1,8 @@"; " Th"; "-e"; "+at"; "  qui"; ""|]
+      "@@ -1,7 +1,8 @@\n Th\n-e\n+at\n  qui\n"
     )
     (
       "@@ -3 +3,2 @@\n-e\n+at\n",
       "The quick brown fox jumps.  The quick brown fox crashes.",
-      [|"@@ -1,27 +1,28 @@"; " Th"; "-e"; "+at"; "  quick brown fox jumps. "; ""|]
+      "@@ -1,27 +1,28 @@\n Th\n-e\n+at\n  quick brown fox jumps. \n"
     )
   ]
   run (fun (input, text, expected) -> test {
     let dmp = DiffMatchPatch.Default
     let p = dmp.PatchFromText(input).[0]
     dmp.PatchAddContext(p, text)
-    do! assertEquals expected (p.ToString().Replace("\r", "").Split([|'\n'|]))
+    do! assertEquals expected (p.ToString())
   })
 }
 
@@ -997,31 +997,31 @@ let ``patch make`` = test {
   let dmp = DiffMatchPatch.Default
   let text1 = "The quick brown fox jumps over the lazy dog."
   let text2 = "That quick brown fox jumped over a lazy dog."
-  let expected = [|"@@ -1,8 +1,7 @@"; " Th"; "-at"; "+e"; "  qui"; "@@ -21,17 +21,18 @@"; " jump"; "-ed"; "+s"; "  over "; "-a"; "+the"; "  laz"; ""|]
+  let expected = "@@ -1,8 +1,7 @@\n Th\n-at\n+e\n  qui\n@@ -21,17 +21,18 @@\n jump\n-ed\n+s\n  over \n-a\n+the\n  laz\n"
   let patches = dmp.PatchMake(text2, text1)
-  do! assertEquals expected (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
+  do! assertEquals expected (dmp.PatchToText(patches))
 
-  let expected = [|"@@ -1,11 +1,12 @@"; " Th"; "-e"; "+at"; "  quick b"; "@@ -22,18 +22,17 @@"; " jump"; "-s"; "+ed"; "  over "; "-the"; "+a"; "  laz"; ""|]
+  let expected = "@@ -1,11 +1,12 @@\n Th\n-e\n+at\n  quick b\n@@ -22,18 +22,17 @@\n jump\n-s\n+ed\n  over \n-the\n+a\n  laz\n"
   let patches = dmp.PatchMake(text1, text2)
-  do! assertEquals expected (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
+  do! assertEquals expected (dmp.PatchToText(patches))
 
   let diffs = dmp.DiffMain(text1, text2, false)
   let patches = dmp.PatchMake(text1, diffs)
-  do! assertEquals expected (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
+  do! assertEquals expected (dmp.PatchToText(patches))
 
   let patches = dmp.PatchMake(text1, text2, diffs)
-  do! assertEquals expected (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
+  do! assertEquals expected (dmp.PatchToText(patches))
 
   let patches = dmp.PatchMake("`1234567890-=[]\\;',./", "~!@#$%^&*()_+{}|:\"<>?")
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -1,21 +1,21 @@"; "-%601234567890-=%5b%5d%5c;',./"; "+~!@#$%25%5e&*()_+%7b%7d%7c:%22%3c%3e?"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -1,21 +1,21 @@\n-%601234567890-=%5b%5d%5c;',./\n+~!@#$%25%5e&*()_+%7b%7d%7c:%22%3c%3e?\n"
 
   let text1 = String.replicate 100 "abcdef"
   let text2 = text1 + "123"
   let expected = [|"@@ -573,28 +573,31 @@"; " cdefabcdefabcdefabcdefabcdef"; "+123"; ""|]
   let patches = dmp.PatchMake(text1, text2)
-  do! assertEquals expected (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
+  do! assertEquals expected (dmp.PatchToText(patches).Split([|'\n'|]))
 }
 
 let ``patch splitMax`` = test {
@@ -1029,8 +1029,8 @@ let ``patch splitMax`` = test {
   let patches = dmp.PatchMake("abcdefghijklmnopqrstuvwxyz01234567890", "XabXcdXefXghXijXklXmnXopXqrXstXuvXwxXyzX01X23X45X67X89X0")
   dmp.PatchSplitMax(patches)
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -1,32 +1,46 @@"; "+X"; " ab"; "+X"; " cd"; "+X"; " ef"; "+X"; " gh"; "+X"; " ij"; "+X"; " kl"; "+X"; " mn"; "+X"; " op"; "+X"; " qr"; "+X"; " st"; "+X"; " uv"; "+X"; " wx"; "+X"; " yz"; "+X"; " 012345"; "@@ -25,13 +39,18 @@"; " zX01"; "+X"; " 23"; "+X"; " 45"; "+X"; " 67"; "+X"; " 89"; "+X"; " 0"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -1,32 +1,46 @@\n+X\n ab\n+X\n cd\n+X\n ef\n+X\n gh\n+X\n ij\n+X\n kl\n+X\n mn\n+X\n op\n+X\n qr\n+X\n st\n+X\n uv\n+X\n wx\n+X\n yz\n+X\n 012345\n@@ -25,13 +39,18 @@\n zX01\n+X\n 23\n+X\n 45\n+X\n 67\n+X\n 89\n+X\n 0\n"
     
   let patches = dmp.PatchMake("abcdef1234567890123456789012345678901234567890123456789012345678901234567890uvwxyz", "abcdefuvwxyz")
   let oldToText = dmp.PatchToText(patches)
@@ -1040,14 +1040,14 @@ let ``patch splitMax`` = test {
   let patches = dmp.PatchMake("1234567890123456789012345678901234567890123456789012345678901234567890", "abc")
   dmp.PatchSplitMax(patches)
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -1,32 +1,4 @@"; "-1234567890123456789012345678"; " 9012"; "@@ -29,32 +1,4 @@"; "-9012345678901234567890123456"; " 7890"; "@@ -57,14 +1,3 @@"; "-78901234567890"; "+abc"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -1,32 +1,4 @@\n-1234567890123456789012345678\n 9012\n@@ -29,32 +1,4 @@\n-9012345678901234567890123456\n 7890\n@@ -57,14 +1,3 @@\n-78901234567890\n+abc\n"
 
   let patches = dmp.PatchMake("abcdefghij , h : 0 , t : 1 abcdefghij , h : 0 , t : 1 abcdefghij , h : 0 , t : 1", "abcdefghij , h : 1 , t : 1 abcdefghij , h : 1 , t : 1 abcdefghij , h : 0 , t : 1")
   dmp.PatchSplitMax(patches)
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -2,32 +2,32 @@"; " bcdefghij , h : "; "-0"; "+1"; "  , t : 1 abcdef"; "@@ -29,32 +29,32 @@"; " bcdefghij , h : "; "-0"; "+1"; "  , t : 1 abcdef"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -2,32 +2,32 @@\n bcdefghij , h : \n-0\n+1\n  , t : 1 abcdef\n@@ -29,32 +29,32 @@\n bcdefghij , h : \n-0\n+1\n  , t : 1 abcdef\n"
 }
 
 let ``patch addPadding`` = test {
@@ -1055,20 +1055,20 @@ let ``patch addPadding`` = test {
   let patches = dmp.PatchMake("", "test")
   dmp.PatchAddPadding(patches) |> ignore
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -1,8 +1,12 @@"; " %01%02%03%04"; "+test"; " %01%02%03%04"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -1,8 +1,12 @@\n %01%02%03%04\n+test\n %01%02%03%04\n"
 
   let patches = dmp.PatchMake("XY", "XtestY")
   dmp.PatchAddPadding(patches) |> ignore
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -2,8 +2,12 @@"; " %02%03%04X"; "+test"; " Y%01%02%03"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -2,8 +2,12 @@\n %02%03%04X\n+test\n Y%01%02%03\n"
 
   let patches = dmp.PatchMake("XXXXYYYY", "XXXXtestYYYY")
   dmp.PatchAddPadding(patches) |> ignore
   do!
-    (dmp.PatchToText(patches).Replace("\r", "").Split([|'\n'|]))
-    |> assertEquals [|"@@ -5,8 +5,12 @@"; " XXXX"; "+test"; " YYYY"; ""|]
+    dmp.PatchToText(patches)
+    |> assertEquals "@@ -5,8 +5,12 @@\n XXXX\n+test\n YYYY\n"
 }
 
 let ``patch apply`` = parameterize {
@@ -1153,4 +1153,21 @@ let ``patch apply(edge)`` = parameterize {
     let resultStr = sprintf "%O\t%O" results.[0] bools.[0]
     do! assertEquals expected resultStr
   })
+}
+
+let ``issue 4`` = test {
+  let text1 = "this is some example text"
+  let text2 = "this is not really example text"
+
+  let patches = DiffMatchPatch.Default.PatchMake(text1, text2)
+  let patchString = DiffMatchPatch.Default.PatchToText(patches)
+  let roundtrip = DiffMatchPatch.Default.PatchFromText(patchString)
+  
+  let expected = Seq.head patches
+  let actual = Seq.head roundtrip
+  do! Assert.Equal(List.ofSeq expected.Diffs, List.ofSeq actual.Diffs)
+  do! Assert.Equal(expected.Length1, actual.Length1)
+  do! Assert.Equal(expected.Length2, actual.Length2)
+  do! Assert.Equal(expected.Start1, actual.Start1)
+  do! Assert.Equal(expected.Start2, actual.Start2)
 }

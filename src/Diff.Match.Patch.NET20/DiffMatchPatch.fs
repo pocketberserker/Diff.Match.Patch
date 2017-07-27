@@ -66,15 +66,14 @@ with
       else string (this.Start2 + 1) + "," + string this.Length2
 
     let text = StringBuilder()
-    Printf.bprintf text "@@ -%s +%s @@" coord1 coord2
-    text.AppendLine() |> ignore
+    Printf.bprintf text "@@ -%s +%s @@\n" coord1 coord2
     for diff in this.Diffs do
       match diff.Operation with
       | Insert -> text.Append("+")
       | Delete -> text.Append("-")
       | Equal -> text.Append(" ")
       |> ignore
-      text.AppendLine(Uri.Encode(diff.Text).Replace('+', ' '))
+      text.Append(Uri.Encode(diff.Text).Replace('+', ' ')).Append('\n')
       |> ignore
 
     text.ToString()
