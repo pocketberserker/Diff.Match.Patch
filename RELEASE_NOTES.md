@@ -1,3 +1,7 @@
+### 2.0.2 - July 28 2017
+- fix newine(`\r\n` to `\n`)
+- update FSharp.Core(4.1.17)
+
 ### 2.0.1 - April 6 2017
 - support .NET Core
 
