@@ -902,7 +902,7 @@ with
       let patchMargin = int this.PatchMargin
       let pattern = text.Substring(patch.Start2, patch.Length1) |> ref
       let padding = ref 0
-      while text.IndexOf(!pattern) <> text.LastIndexOf(!pattern) && String.length !pattern < this.MatchMaxBits - patchMargin - patchMargin do
+      while text.IndexOf(!pattern, StringComparison.Ordinal) <> text.LastIndexOf(!pattern, StringComparison.Ordinal) && String.length !pattern < this.MatchMaxBits - patchMargin - patchMargin do
         padding := !padding + patchMargin
         pattern := String.javaSubstring (max 0 (patch.Start2 - !padding)) (min text.Length (patch.Start2 + patch.Length1 + !padding)) text
       padding := !padding + patchMargin
@@ -1158,12 +1158,13 @@ with
     let patches = ResizeArray<Patch>()
     if String.IsNullOrEmpty textLine then patches
     else
-      let textList = ResizeArray<string>(textLine.Split([| "\n" |], StringSplitOptions.None))
+      let textPointer = ref 0
+      let textList = ResizeArray<string>(textLine.Split([| '\n' |]))
       let text = LinkedList<string>(textList)
       let patchHeader = Regex("^@@ -(\\d+),?(\\d*) \\+(\\d+),?(\\d*) @@$")
-      while text.Count <> 0 do
-        let m = patchHeader.Match(Seq.head text)
-        if not m.Success then raise <| ArgumentException(sprintf "Invalid patch string: %s" (Seq.head text))
+      while !textPointer < text.Count do
+        let m = patchHeader.Match(Seq.nth !textPointer text)
+        if not m.Success then raise <| ArgumentException(sprintf "Invalid patch string: %s" (Seq.nth !textPointer text))
         let patch = {
           Diffs = ResizeArray<Diff>()
           Start1 = Convert.ToInt32(m.Groups.[1].Value)
@@ -1172,6 +1173,8 @@ with
           Length2 = 0
         }
         patches.Add(patch)
+
+        patch.Start1 <- Convert.ToInt32(m.Groups.[1].Value)
         if m.Groups.[2].Length = 0 then
           patch.Start1 <- patch.Start1 - 1
           patch.Length1 <- 1
@@ -1179,6 +1182,8 @@ with
         else
           patch.Start1 <- patch.Start1 - 1
           patch.Length1 <- Convert.ToInt32(m.Groups.[2].Value)
+
+        patch.Start2 <- Convert.ToInt32(m.Groups.[3].Value)
         if m.Groups.[4].Length = 0 then
           patch.Start2 <- patch.Start2 - 1
           patch.Length2 <- 1
@@ -1186,13 +1191,14 @@ with
         else
           patch.Start2 <- patch.Start2 - 1
           patch.Length2 <- Convert.ToInt32(m.Groups.[4].Value)
-        text.RemoveFirst()
+        incr textPointer
+        
         let rec inner () =
-          if text.Count = 0 then ()
+          if !textPointer >= text.Count then ()
           else
             try
-              let sign = (Seq.head text).[0]
-              let line = (Seq.head text).Substring(1)
+              let sign = (Seq.nth !textPointer text).[0]
+              let line = (Seq.nth !textPointer text).Substring(1)
               let line = line.Replace("+", "%2b")
               let line = Uri.Decode(line)
               match sign with
@@ -1209,11 +1215,11 @@ with
               | _ -> raise <| ArgumentException(sprintf "Invalid patch mode '%c' in: %s" sign line)
               |> function
               | true ->
-                text.RemoveFirst()
+                incr textPointer
                 inner ()
               | false -> ()
             with :? IndexOutOfRangeException ->
-              text.RemoveFirst()
+              incr textPointer
               inner ()
         inner ()
       patches
