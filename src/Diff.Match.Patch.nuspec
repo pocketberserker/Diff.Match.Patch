@@ -34,7 +34,7 @@
         <dependency id="FSharp.Core" version="4.0.0.1" />
       </group>
       <group targetFramework=".NETStandard1.6">
-        <dependency id="FSharp.Core" version="4.1.17" exclude="Build,Analyzers" />
+        <dependency id="FSharp.Core" version="4.1.18" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>Diff.Match.Patch</AssemblyName>
@@ -10,8 +10,7 @@
     <Compile Include="../Diff.Match.Patch.NET20/DiffMatchPatch.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.1.17" />
+    <PackageReference Include="FSharp.Core" Version="4.1.18" />
     <PackageReference Include="System.Text.Encoding.Extensions " Version="4.3.0" />
-    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
   </ItemGroup>
 </Project>
