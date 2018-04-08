@@ -12,26 +12,8 @@
     <releaseNotes>@releaseNotes@</releaseNotes>
     <tags>F# fsharp diff match patch</tags>
     <dependencies>
-      <group targetFramework=".NETFramework2.0">
-        <dependency id="FSharp.Core" version="3.1.2.5" />
-      </group>
-      <group targetFramework=".NETFramework4.0">
-        <dependency id="FSharp.Core" version="3.1.2.5" />
-      </group>
       <group targetFramework=".NETFramework4.5">
         <dependency id="FSharp.Core" version="3.1.2.5" />
-      </group>
-      <group targetFramework="portable45-net45+sl5+win8">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
-      </group>
-      <group targetFramework="portable45-net45+win8">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
-      </group>
-      <group targetFramework="portable45-net45+win8+wp8">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
-      </group>
-      <group targetFramework="portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10">
-        <dependency id="FSharp.Core" version="4.0.0.1" />
       </group>
       <group targetFramework=".NETStandard1.6">
         <dependency id="FSharp.Core" version="4.1.18" exclude="Build,Analyzers" />
@@ -39,18 +21,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Diff.Match.Patch.NET20/Diff.Match.Patch.dll" target="lib/net20" />
-    <file src="Diff.Match.Patch.NET20/Diff.Match.Patch.XML" target="lib/net20" />
-    <file src="../src/Diff.Match.Patch.NET40/bin/Release/net40/Diff.Match.Patch.dll" target="lib/net40" />
     <file src="../src/Diff.Match.Patch.NET45/bin/Release/net45/Diff.Match.Patch.dll" target="lib/net45" />
+    <file src="../src/Diff.Match.Patch.NET45/bin/Release/net45/Diff.Match.Patch.xml" target="lib/net45" />
     <file src="../src/Diff.Match.Patch.NETCore/bin/Release/netstandard1.6/Diff.Match.Patch.dll" target="lib/netstandard1.6" />
-    <file src="Diff.Match.Patch.Portable47/Diff.Match.Patch.dll" target="lib/portable45-net45+sl5+win8" />
-    <file src="Diff.Match.Patch.Portable47/Diff.Match.Patch.XML" target="lib/portable45-net45+sl5+win8" />
-    <file src="Diff.Match.Patch.Portable7/Diff.Match.Patch.dll" target="lib/portable45-net45+win8" />
-    <file src="Diff.Match.Patch.Portable7/Diff.Match.Patch.XML" target="lib/portable45-net45+win8" />
-    <file src="Diff.Match.Patch.Portable78/Diff.Match.Patch.dll" target="lib/portable45-net45+win8+wp8" />
-    <file src="Diff.Match.Patch.Portable78/Diff.Match.Patch.XML" target="lib/portable45-net45+win8+wp8" />
-    <file src="Diff.Match.Patch.Portable259/Diff.Match.Patch.dll" target="lib/portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-    <file src="Diff.Match.Patch.Portable259/Diff.Match.Patch.XML" target="lib/portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+    <file src="../src/Diff.Match.Patch.NETCore/bin/Release/netstandard1.6/Diff.Match.Patch.xml" target="lib/netstandard1.6" />
 </files>
 </package>
