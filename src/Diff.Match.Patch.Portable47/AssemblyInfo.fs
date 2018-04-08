@@ -6,15 +6,15 @@ open System.Runtime.CompilerServices
 [<assembly: AssemblyTitleAttribute("Diff.Match.Patch")>]
 [<assembly: AssemblyProductAttribute("Diff.Match.Patch")>]
 [<assembly: InternalsVisibleToAttribute("Diff.Match.Patch.Tests")>]
-[<assembly: AssemblyVersionAttribute("2.0.2")>]
-[<assembly: AssemblyFileVersionAttribute("2.0.2")>]
-[<assembly: AssemblyInformationalVersionAttribute("2.0.2")>]
+[<assembly: AssemblyVersionAttribute("2.1.0")>]
+[<assembly: AssemblyFileVersionAttribute("2.1.0")>]
+[<assembly: AssemblyInformationalVersionAttribute("2.1.0")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "Diff.Match.Patch"
     let [<Literal>] AssemblyProduct = "Diff.Match.Patch"
     let [<Literal>] InternalsVisibleTo = "Diff.Match.Patch.Tests"
-    let [<Literal>] AssemblyVersion = "2.0.2"
-    let [<Literal>] AssemblyFileVersion = "2.0.2"
-    let [<Literal>] AssemblyInformationalVersion = "2.0.2"
+    let [<Literal>] AssemblyVersion = "2.1.0"
+    let [<Literal>] AssemblyFileVersion = "2.1.0"
+    let [<Literal>] AssemblyInformationalVersion = "2.1.0"

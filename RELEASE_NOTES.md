@@ -1,3 +1,7 @@
+### 2.1.0 - April 9 2018
+- downgrade FSharp.Core
+- change visibility [#5](https://github.com/pocketberserker/Diff.Match.Patch/issues/5)
+
 ### 2.0.2 - July 28 2017
 - fix newine(`\r\n` to `\n`)
 - update FSharp.Core(4.1.17)
