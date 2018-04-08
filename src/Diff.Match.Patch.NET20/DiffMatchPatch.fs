@@ -93,7 +93,7 @@ with
 
   member this.DiffMain(text1, text2) = this.DiffMain(text1, text2, true)
 
-  member internal this.DiffLinesToChars(text1, text2) =
+  member this.DiffLinesToChars(text1, text2) =
     let lineArray = ResizeArray<string>()
     let lineHash = Dictionary<string, int>()
     lineArray.Add("")
@@ -120,7 +120,7 @@ with
     inner 0 -1
     chars.ToString()
 
-  member internal __.DiffCharsToLines(diffs: ICollection<Diff>, lineArray: ResizeArray<string>) =
+  member __.DiffCharsToLines(diffs: ICollection<Diff>, lineArray: ResizeArray<string>) =
     for diff in diffs do
       let text = StringBuilder()
       for y in [0 .. diff.Text.Length - 1] do
