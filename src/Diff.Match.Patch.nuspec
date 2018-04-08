@@ -21,9 +21,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="../src/Diff.Match.Patch.NET45/bin/Release/net45/Diff.Match.Patch.dll" target="lib/net45" />
-    <file src="../src/Diff.Match.Patch.NET45/bin/Release/net45/Diff.Match.Patch.xml" target="lib/net45" />
-    <file src="../src/Diff.Match.Patch.NETCore/bin/Release/netstandard1.6/Diff.Match.Patch.dll" target="lib/netstandard1.6" />
-    <file src="../src/Diff.Match.Patch.NETCore/bin/Release/netstandard1.6/Diff.Match.Patch.xml" target="lib/netstandard1.6" />
+    <file src="Diff.Match.Patch/net45/Diff.Match.Patch.dll" target="lib/net45" />
+    <file src="Diff.Match.Patch/net45/Diff.Match.Patch.xml" target="lib/net45" />
+    <file src="Diff.Match.Patch/netstandard1.6/Diff.Match.Patch.dll" target="lib/netstandard1.6" />
+    <file src="Diff.Match.Patch/netstandard1.6/Diff.Match.Patch.xml" target="lib/netstandard1.6" />
 </files>
 </package>
