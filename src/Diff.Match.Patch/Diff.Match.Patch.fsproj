@@ -1,12 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Version>2.1.0</Version>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Diff.Match.Patch</AssemblyName>
+    <authors>pocketberserker</authors>
+    <owners>pocketberserker</owners>
+    <licenseUrl>https://github.com/pocketberserker/Diff.Match.Patch/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/pocketberserker/Diff.Match.Patch</projectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Diff.Match.Patch is a port of google-diff-match-patch.</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <tags>F# fsharp diff match patch</tags>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CommonAssemblyInfo.fs" />
     <Compile Include="Prelude.fs" />
     <Compile Include="DiffMatchPatch.fs" />
+    <None Include="../../README.md" Pack="true" PackagePath="/"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="5.0.0" />
