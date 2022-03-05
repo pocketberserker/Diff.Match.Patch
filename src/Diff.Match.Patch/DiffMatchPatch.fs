@@ -1162,8 +1162,8 @@ with
       let text = LinkedList<string>(textList)
       let patchHeader = Regex("^@@ -(\\d+),?(\\d*) \\+(\\d+),?(\\d*) @@$")
       while !textPointer < text.Count do
-        let m = patchHeader.Match(Seq.nth !textPointer text)
-        if not m.Success then raise <| ArgumentException(sprintf "Invalid patch string: %s" (Seq.nth !textPointer text))
+        let m = patchHeader.Match(Seq.item !textPointer text)
+        if not m.Success then raise <| ArgumentException(sprintf "Invalid patch string: %s" (Seq.item !textPointer text))
         let patch = {
           Diffs = ResizeArray<Diff>()
           Start1 = Convert.ToInt32(m.Groups.[1].Value)
@@ -1196,8 +1196,8 @@ with
           if !textPointer >= text.Count then ()
           else
             try
-              let sign = (Seq.nth !textPointer text).[0]
-              let line = (Seq.nth !textPointer text).Substring(1)
+              let sign = (Seq.item !textPointer text).[0]
+              let line = (Seq.item !textPointer text).Substring(1)
               let line = line.Replace("+", "%2b")
               let line = Uri.Decode(line)
               match sign with
