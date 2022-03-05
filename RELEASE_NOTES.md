@@ -1,3 +1,7 @@
+### 3.0.0 - March 5 2022
+- support netstandard2.0 or higher
+- update FSharp.Core(5.0.0)
+
 ### 2.1.0 - April 9 2018
 - downgrade FSharp.Core
 - change visibility [#5](https://github.com/pocketberserker/Diff.Match.Patch/issues/5)
