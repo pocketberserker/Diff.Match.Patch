@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
@@ -11,8 +11,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0" />
-    <PackageReference Include="Persimmon" Version="3.1.1" />
-    <PackageReference Include="Persimmon.TestAdapter" Version="0.10.0" />
+    <PackageReference Include="Persimmon" Version="5.0.1" />
+    <PackageReference Include="Persimmon.TestAdapter" Version="0.12.0-beta3" />
     <ProjectReference Include="../../src/Diff.Match.Patch/Diff.Match.Patch.fsproj" />
   </ItemGroup>
 </Project>
