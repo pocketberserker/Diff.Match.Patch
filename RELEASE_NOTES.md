@@ -1,6 +1,8 @@
-### 3.0.0 - March 5 2022
+### 3.0.1 - March 6 2022
 - support netstandard2.0 or higher
 - update FSharp.Core(5.0.0)
+
+### 3.0.0 - Broken package
 
 ### 2.1.0 - April 9 2018
 - downgrade FSharp.Core
